@@ -35,8 +35,12 @@ class GMOResponse:
 
         return parsed
 
-    def get_response_time(self):
-        return datetime.strptime(self.responsetime, "%Y-%m-%dT%H:%M:%S.%fZ")
+    def get_response_time(self) -> datetime:
+        parsed_time = datetime.strptime(self.responsetime, "%Y-%m-%dT%H:%M:%S.%fZ")
+        return parsed_time
+
+    def get_readable_time(self) -> str:
+        return self.get_response_time().strftime("%Y/%m/%d %H:%M:%S")
 
 
 class GMOAPIBase(ABC):

@@ -1,6 +1,5 @@
 import time
 import tkinter as tk
-from datetime import datetime
 
 from gmo import GMOStatus, GMOCurrency
 
@@ -71,7 +70,7 @@ class App(tk.Tk):
 
             self.label.config(text=(
                 f"USD-JPY: {usd_jpy.bid} - {usd_jpy.ask}\n"
-                f"Last updated at:{currency_response.get_response_time()}"
+                f"Last updated at: {currency_response.get_readable_time()}"
             ))
 
             print(
