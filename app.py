@@ -30,7 +30,7 @@ class App(tk.Tk):
         self.geometry("300x200")
 
         # Add some content
-        self.label = tk.Label(self, text="Drag me around!", font=("Helvetica", 16))
+        self.label = tk.Label(self, text="Getting currency data", font=("Helvetica", 16))
         self.label.pack(expand=True)
 
         # Bind mouse events to the self
