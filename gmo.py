@@ -20,7 +20,7 @@ class GMOResponse:
     responsetime: str
 
     @classmethod
-    def create(cls, d: dict):
+    def create(cls, d: dict) -> 'GMOResponse':
         parsed = cls(**d)
         # 'data' will be parsed as dict, which is not ideal. We'll convert it to data class.
         data_info = get_type_hints(cls).get('data', GMOData)

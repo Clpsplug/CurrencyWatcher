@@ -1,5 +1,6 @@
 import time
 import tkinter as tk
+from typing import Optional
 
 from gmo import GMOStatus, GMOCurrency
 
@@ -21,7 +22,7 @@ class CurrencyAPIFailureError(Exception):
 
 
 class App(tk.Tk):
-    def __init__(self, master=None):
+    def __init__(self, master: Optional[tk.Widget] = None):
         super().__init__(master)
         self.master = master
 
@@ -36,19 +37,20 @@ class App(tk.Tk):
         self.bind("<Button-1>", self.start_drag)
         self.bind("<B1-Motion>", self.on_drag)
 
-        self.x = 0
-        self.y = 0
+        self.x: int = 0
+        self.y: int = 0
         self.last_update_at: float = 0
+        self.next_update_interval: int = 5
         self.update_task()
 
-    def start_drag(self, event):
+    def start_drag(self, event: tk.Event) -> None:
         self.x = event.x
         self.y = event.y
 
-    def on_drag(self, event):
+    def on_drag(self, event: tk.Event) -> None:
         self.geometry(f'+{event.x_root - self.x}+{event.y_root - self.y}')
 
-    def update_task(self):
+    def update_task(self) -> None:
         try:
             if self.last_update_at + 5 > time.time():
                 raise TooEarlyError()
@@ -76,19 +78,20 @@ class App(tk.Tk):
             print(
                 f"[{currency_response.get_response_time()}] USD-JPY: {usd_jpy.bid} - {usd_jpy.ask}"
             )
-
-            self.after(100, self.update_task)
+            self.next_update_interval = 100
         except TooEarlyError:
-            self.after(100, self.update_task)
+            self.next_update_interval = 100
         except StatusAPIFailureError:
-            self.label.config(text="API is failing!")
-            self.after(1000 * 60 * 60, self.update_task)
+            self.label.config(text="API is failing! Will try again after an hour.")
+            self.next_update_interval = 1000 * 60 * 60
         except IsOnMaintenanceError:
             self.label.config(text="On maintenance - cannot get data, will try again after 30 min.")
-            self.after(1000 * 60 * 30, self.update_task)
+            self.next_update_interval = 1000 * 60 * 30
         except CurrencyAPIFailureError:
-            self.label.config(text="Currency API is failing!")
-            self.after(1000 * 60 * 5, self.update_task)
+            self.label.config(text="Currency API is failing! Will try again after 5 min.")
+            self.next_update_interval = 1000 * 60 * 5
         except Exception as e:
-            self.label.config(text=f"Unexpected API error! Will try agtain after a minute.\n Exception: {e}")
-            self.after(1000 * 60, self.update_task)
+            self.label.config(text=f"Unexpected API error! Will try again after a minute.\n Exception: {e}")
+            self.next_update_interval = 1000 * 60
+        finally:
+            self.after(self.next_update_interval, self.update_task)
