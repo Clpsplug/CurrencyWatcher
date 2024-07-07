@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal, get_type_hints, List, get_args, get_origin
 
 import requests
@@ -36,8 +36,10 @@ class GMOResponse:
         return parsed
 
     def get_response_time(self) -> datetime:
-        parsed_time = datetime.strptime(self.responsetime, "%Y-%m-%dT%H:%M:%S.%fZ")
-        return parsed_time
+        # Returned time seems to be UTC
+        parsed_time = datetime.strptime(self.responsetime, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc)
+        # Pass None for local time (as in local time in which the machine runs)
+        return parsed_time.astimezone(tz=None)
 
     def get_readable_time(self) -> str:
         return self.get_response_time().strftime("%Y/%m/%d %H:%M:%S")
