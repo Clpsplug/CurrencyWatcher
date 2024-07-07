@@ -2,7 +2,7 @@ import time
 import tkinter as tk
 from typing import Optional
 
-from gmo import GMOStatus, GMOCurrency
+from gmo import GMOStatus, GMOCurrency, CurrencyData
 
 
 class TooEarlyError(Exception):
@@ -10,6 +10,10 @@ class TooEarlyError(Exception):
 
 
 class IsOnMaintenanceError(Exception):
+    pass
+
+
+class MarketIsClosedError(Exception):
     pass
 
 
@@ -68,7 +72,7 @@ class App(tk.Tk):
             if currency_response.status != 0:
                 raise CurrencyAPIFailureError()
 
-            usd_jpy = list(filter(lambda d: d.symbol == "USD_JPY", currency_response.data))[0]
+            usd_jpy: CurrencyData = list(filter(lambda d: d.symbol == "USD_JPY", currency_response.data))[0]
 
             self.label.config(text=(
                 f"USD-JPY: {usd_jpy.bid} - {usd_jpy.ask}\n"
@@ -78,6 +82,9 @@ class App(tk.Tk):
             print(
                 f"[{currency_response.get_response_time()}] USD-JPY: {usd_jpy.bid} - {usd_jpy.ask}"
             )
+
+            if usd_jpy.status == "CLOSE":
+                raise MarketIsClosedError()
             self.next_update_interval = 100
         except TooEarlyError:
             self.next_update_interval = 100
@@ -90,6 +97,9 @@ class App(tk.Tk):
         except CurrencyAPIFailureError:
             self.label.config(text="Currency API is failing! Will try again after 5 min.")
             self.next_update_interval = 1000 * 60 * 5
+        except MarketIsClosedError:
+            print("Market is closed. Will run on a lower update frequency.")
+            self.next_update_interval = 1000 * 60 * 60
         except Exception as e:
             self.label.config(text=f"Unexpected API error! Will try again after a minute.\n Exception: {e}")
             self.next_update_interval = 1000 * 60
