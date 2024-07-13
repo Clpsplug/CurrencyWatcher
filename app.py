@@ -2,7 +2,8 @@ import time
 import tkinter as tk
 from typing import Optional
 
-from gmo import GMOStatus, GMOCurrency, CurrencyData
+from domain import CurrencyData
+from gmo import GMOStatus, GMOCurrency
 
 
 class TooEarlyError(Exception):
@@ -101,7 +102,9 @@ class App(tk.Tk):
             print("Market is closed. Will run on a lower update frequency.")
             self.next_update_interval = 1000 * 60 * 60
         except Exception as e:
+            import traceback
             self.label.config(text=f"Unexpected API error!\nWill try again after a minute.\n Exception: {e}")
             self.next_update_interval = 1000 * 60
+            traceback.print_exception(type(e), e, e.__traceback__)
         finally:
             self.after(self.next_update_interval, self.update_task)
