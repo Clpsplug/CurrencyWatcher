@@ -9,7 +9,7 @@ class TooEarlyError(Exception):
     pass
 
 
-class IsOnMaintenanceError(Exception):
+class IsUnderMaintenanceError(Exception):
     pass
 
 
@@ -66,7 +66,7 @@ class App(tk.Tk):
                 raise StatusAPIFailureError()
 
             if response.data.status == "MAINTENANCE":
-                raise IsOnMaintenanceError()
+                raise IsUnderMaintenanceError()
 
             currency_response = GMOCurrency().call()
             if currency_response.status != 0:
@@ -89,19 +89,19 @@ class App(tk.Tk):
         except TooEarlyError:
             self.next_update_interval = 100
         except StatusAPIFailureError:
-            self.label.config(text="API is failing! Will try again after an hour.")
+            self.label.config(text="API is failing!\nWill try again after an hour.")
             self.next_update_interval = 1000 * 60 * 60
-        except IsOnMaintenanceError:
-            self.label.config(text="On maintenance - cannot get data, will try again after 30 min.")
+        except IsUnderMaintenanceError:
+            self.label.config(text="Under maintenance - cannot get data.\nWill try again after 30 min.")
             self.next_update_interval = 1000 * 60 * 30
         except CurrencyAPIFailureError:
-            self.label.config(text="Currency API is failing! Will try again after 5 min.")
+            self.label.config(text="Currency API is failing!\nWill try again after 5 min.")
             self.next_update_interval = 1000 * 60 * 5
         except MarketIsClosedError:
             print("Market is closed. Will run on a lower update frequency.")
             self.next_update_interval = 1000 * 60 * 60
         except Exception as e:
-            self.label.config(text=f"Unexpected API error! Will try again after a minute.\n Exception: {e}")
+            self.label.config(text=f"Unexpected API error!\nWill try again after a minute.\n Exception: {e}")
             self.next_update_interval = 1000 * 60
         finally:
             self.after(self.next_update_interval, self.update_task)
