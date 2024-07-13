@@ -1,3 +1,6 @@
+"""UI elements go here.
+"""
+
 import time
 import tkinter as tk
 from typing import Optional

@@ -1,3 +1,6 @@
+"""This module contains all the data classes needed for the API.
+"""
+
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import get_type_hints, get_origin, get_args, Literal, Annotated, Any
@@ -68,6 +71,7 @@ class Status(GMOData):
 @dataclass
 class StatusResponse(GMOResponse):
     """Market status response
+
     If data is 'MAINTENANCE', the app SHOULD postpone the next API attempt.
     """
     data: Annotated[Status, "Is the market open, or is the API itself under maintenance?"]
@@ -87,6 +91,7 @@ class CurrencyData(GMOData):
 @dataclass
 class CurrencyResponse(GMOResponse):
     """Latest currency rate response
+
     Data contains list of currency rate, each of which has the 'symbol' field,
     which can be used to determine which currency rate to display.
     """

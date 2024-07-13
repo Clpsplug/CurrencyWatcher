@@ -1,3 +1,6 @@
+"""This module contains an actual API calls.
+"""
+
 from abc import ABC, abstractmethod
 
 import requests
